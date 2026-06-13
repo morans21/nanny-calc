@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    
+    <!-- הגדרות חובה להפיכה לאפליקציית סלולר -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <title>מחשבון שכר מטפלת</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+            --minus: #ef4444;
+            --plus: #10b981;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .app-container {
+            max-width: 430px;
+            width: 100%;
+            background: var(--card);
+            border-radius: 24px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+        .app-header {
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        .app-header h1 {
+            font-size: 22px;
+            margin: 0;
+            color: #0f172a;
+            font-weight: 700;
+        }
+        .app-header p {
+            font-size: 14px;
+            color: #64748b;
+            margin: 4px 0 0 0;
+        }
+        .input-box {
+            background: #f1f5f9;
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .input-box label {
+            font-weight: 600;
+            font-size: 15px;
+        }
+        .input-box input {
+            width: 90px;
+            border: none;
+            background: #ffffff;
+            padding: 8px 12px;
+            border-radius: 10px;
+            font-size: 16px;
+            text-align: center;
+            font-weight: bold;
+            color: var(--primary);
+            box-shadow: inset 0 1px 2px rgba(0,0,0,0.05);
+        }
+        .input-box input:focus {
+            outline: 2px solid var(--primary);
+        }
+        .section-title {
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            margin: 20px 0 8px 0;
+            font-weight: 700;
+        }
+        .row {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            font-size: 15px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+        .row:last-child {
+            border-bottom: none;
+        }
+        .bold { font-weight: 700; }
+        .net-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .net-box span { color: #166534; }
+        .cost-box {
+            background: #eef2ff;
+            border: 1px solid #e0e7ff;
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .cost-box span { color: #3730a3; }
+        .val { font-variant-numeric: tabular-nums; }
+    </style>
+</head>
+<body>
+
+<div class="app-container">
+    <div class="app-header">
+        <h1>מחשבון שכר למטפלת</h1>
+        <p>תעריף שעתי קבוע: 66 ש"ח</p>
+    </div>
+
+    <!-- קלטים -->
+    <div class="input-box">
+        <label>שעות עבודה:</label>
+        <input type="number" id="hours" placeholder="0" oninput="uiCalculate()">
+    </div>
+    <div class="input-box">
+        <label>ימי הגעה:</label>
+        <input type="number" id="days" placeholder="0" oninput="uiCalculate()">
+    </div>
+    <div class="input-box">
+        <label>נסיעות ליום:</label>
+        <input type="number" id="travelRate" value="22.60" oninput="uiCalculate()">
+    </div>
+
+    <!-- ברוטו -->
+    <div class="section-title">חישובי ברוטו</div>
+    <div class="row">
+        <span>שכר יסוד</span>
+        <span class="val" id="baseSalary">0 ש"ח</span>
+    </div>
+    <div class="row">
+        <span>החזר נסיעות</span>
+        <span class="val" id="travelTotal">0 ש"ח</span>
+    </div>
+
+    <!-- נטו ומזומן -->
+    <div class="section-title">ניכויים מהעובדת</div>
+    <div class="row">
+        <span>פנסיה עובדת (6%)</span>
+        <span class="val" id="pensionEmployee" style="color: var(--minus);">0 ש"ח</span>
+    </div>
+    <div class="row">
+        <span>ביטוח לאומי עובדת (2%)</span>
+        <span class="val" id="blEmployee" style="color: var(--minus);">0 ש"ח</span>
+    </div>
+
+    <div class="net-box">
+        <span class="bold">נטו לתשלום למטפלת:</span>
+        <span class="bold val" id="netSalary" style="font-size: 18px;">0 ש"ח</span>
+    </div>
+
+    <!-- עלות מעסיק -->
+    <div class="section-title">הפרשות מעסיק (בצד)</div>
+    <div class="row">
+        <span>פנסיה ופיצויים (12.5%)</span>
+        <span class="val" id="pensionEmployer">0 ש"ח</span>
+    </div>
+    <div class="row">
+        <span>ביטוח לאומי מעסיק (5.25%)</span>
+        <span class="val" id="blEmployer">0 ש"ח</span>
+    </div>
+
+    <div class="cost-box">
+        <span class="bold">סך עלות למשפחה:</span>
+        <span class="bold val" id="totalCost" style="font-size: 18px;">0 ש"ח</span>
+    </div>
+</div>
+
+<script>
+function uiCalculate() {
+    const hours = parseFloat(document.getElementById('hours').value) || 0;
+    const days = parseFloat(document.getElementById('days').value) || 0;
+    const travelRate = parseFloat(document.getElementById('travelRate').value) || 0;
+    
+    const baseSalary = hours * 66;
+    const travelTotal = days * travelRate;
+    const grossSalary = baseSalary + travelTotal;
+    
+    const pensionEmployee = baseSalary * 0.06;
+    const blEmployee = grossSalary * 0.02;
+    const netSalary = grossSalary - (pensionEmployee + blEmployee);
+    
+    const pensionEmployer = baseSalary * 0.125;
+    const blEmployer = grossSalary * 0.0525;
+    const totalCost = grossSalary + pensionEmployer + blEmployer;
+    
+    document.getElementById('baseSalary').innerText = baseSalary.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('travelTotal').innerText = travelTotal.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('pensionEmployee').innerText = '-' + pensionEmployee.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('blEmployee').innerText = '-' + blEmployee.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('netSalary').innerText = netSalary.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('pensionEmployer').innerText = '+' + pensionEmployer.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('blEmployer').innerText = '+' + blEmployer.toLocaleString('he-IL') + ' ₪';
+    document.getElementById('totalCost').innerText = totalCost.toLocaleString('he-IL') + ' ₪';
+}
+</script>
+
+</body>
+</html>
